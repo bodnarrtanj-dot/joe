@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>JOE-STREAM | ALL ROUNDS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Stalinist+One&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --joe-red: #b31212;
+            --joe-gold: #c49a45;
+            --paper: #ede3d0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--paper);
+            font-family: 'Oswald', sans-serif;
+            margin: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-leather.png');
+        }
+
+        header {
+            background: #000;
+            border-bottom: 6px solid var(--joe-red);
+            padding: 20px 5%;
+            text-align: center;
+        }
+
+        .logo {
+            font-family: 'Stalinist One', cursive;
+            color: var(--joe-red);
+            font-size: 2.5rem;
+            text-shadow: 4px 4px 0px #000;
+            letter-spacing: 2px;
+        }
+
+        .main-container {
+            padding: 30px 5%;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+        }
+
+        .player-section {
+            background: #000;
+            border: 5px solid var(--joe-red);
+            position: relative;
+            box-shadow: 0 0 30px rgba(179, 18, 18, 0.5);
+        }
+
+        .video-wrap {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .video-wrap iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        .episode-panel {
+            background: #111;
+            border: 2px solid var(--joe-gold);
+            padding: 20px;
+            height: fit-content;
+        }
+
+        /* ПЕРЕМИКАЧ СЕЗОНІВ */
+        .season-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: #222;
+            border: 2px solid #444;
+            color: var(--paper);
+            padding: 10px;
+            font-family: 'Stalinist One';
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            border-color: var(--joe-red);
+            background: var(--joe-red);
+            color: white;
+        }
+
+        .panel-title {
+            font-family: 'Stalinist One';
+            color: var(--joe-gold);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .episodes-grid::-webkit-scrollbar { width: 5px; }
+        .episodes-grid::-webkit-scrollbar-thumb { background: var(--joe-red); }
+
+        .ep-btn {
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 10px 5px;
+            cursor: pointer;
+            font-family: 'Oswald';
+            font-weight: bold;
+            transition: 0.2s;
+            text-align: center;
+        }
+
+        .ep-btn:hover, .ep-btn.active {
+            background: var(--joe-red);
+            border-color: #fff;
+            transform: scale(1.1);
+        }
+
+        .anime-info {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(179, 18, 18, 0.1);
+            border-left: 10px solid var(--joe-red);
+        }
+
+        .anime-info h1 {
+            font-family: 'Stalinist One';
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+            color: var(--joe-red);
+        }
+
+        @media (max-width: 1100px) {
+            .main-container { grid-template-columns: 1fr; }
+            .episode-panel { order: 2; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">ASHITANO JOE: LEGACY</div>
+</header>
+
+<div class="main-container">
+    <div class="left-side">
+        <div class="player-section">
+            <div class="video-wrap">
+                <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen allow="autoplay *; fullscreen *"></iframe>
+            </div>
+        </div>
+        
+        <div class="anime-info">
+            <h1 id="currentTitle">ГОТОВИЙ ДО БОЮ?</h1>
+            <p id="currentDesc">Обери сезон та номер серії праворуч. Весь шлях Ябукі Джо тепер в одному місці.</p>
+        </div>
+    </div>
+
+    <aside class="episode-panel">
+        <div class="season-tabs">
+            <button class="tab-btn active" onclick="switchSeason(1)">СЕЗОН 1</button>
+            <button class="tab-btn" onclick="switchSeason(2)">СЕЗОН 2</button>
+        </div>
+        <div class="panel-title" id="panelTitle">СЕРІЇ 1-ГО СЕЗОНУ</div>
+        <div class="episodes-grid" id="episodesGrid"></div>
+    </aside>
+</div>
+
+<script>
+    const SEASON_1 = {
+        1: "https://kodikplayer.com/seria/685166/17c02d7aaa7d0926af73cd5422c763bd/720p",
+        2: "https://kodikplayer.com/seria/685167/46d6e61037d3c7e365f5dcd0257310d7/720p",
+        3: "https://kodikplayer.com/seria/685168/6726b6633d30252c51ad503e57bf15f2/720p",
+        4: "https://kodikplayer.com/seria/685169/0d9ef1eda003c624d2a13c651380c604/720p",
+        5: "https://kodikplayer.com/seria/686168/faddc3ccd1b65ac5074079cf2540da71/720p",
+        6: "https://kodikplayer.com/seria/688177/2bd6b27cd6b39a9130ddd70044baca36/720p",
+        7: "https://kodikplayer.com/seria/691470/bb5c84fdc525cf8f41cfbb1d4312e153/720p",
+        8: "https://kodikplayer.com/seria/691600/e3ddcad7b66f04bc0253a1de30cd37d7/720p",
+        9: "https://kodikplayer.com/seria/692640/0f2079c0b545b74acf599c9cae9ccee8/720p",
+        10: "https://kodikplayer.com/seria/695743/ff7d8c99a351cbe79b42f4ea1bac9970/720p",
+        11: "https://kodikplayer.com/seria/696636/7685178bf305008aa78e9ec115128a8b/720p",
+        12: "https://kodikplayer.com/seria/707134/d8af88af8bbb44ba013073b710cde958/720p",
+        13: "https://kodikplayer.com/seria/707136/be7e68825ca3a94e0aed4991263f7ba4/720p",
+        14: "https://kodikplayer.com/seria/708900/e516afd0282bd951836f8dd700b36c10/720p",
+        15: "https://kodikplayer.com/seria/708901/02ed6d2d72653582e5f7b8e920bc8841/720p",
+        16: "https://kodikplayer.com/seria/709231/390d09f81e0b445d07ef26ac8fa2f6fc/720p",
+        17: "https://kodikplayer.com/seria/709232/30277294eb40fb42d5dce80edf95ad6f/720p",
+        18: "https://kodikplayer.com/seria/709309/279ed9d09768174d73b366d13ebef88a/720p",
+        19: "https://kodikplayer.com/seria/711594/92967e551b35d396bcceee841a85c40c/720p",
+        20: "https://kodikplayer.com/seria/714363/2159e99dbe976d02236305491d6157a4/720p",
+        21: "https://kodikplayer.com/seria/714405/a452a4197eaedbf461cff68d79c423a6/720p",
+        22: "https://kodikplayer.com/seria/717403/8fca665d8a6ccb18f0e5fee4c4b1b9ed/720p",
+        23: "https://kodikplayer.com/seria/717404/4895612d587a17a64a431f535d0190b8/720p",
+        24: "https://kodikplayer.com/seria/717405/691269aa9ccc7c7f4ae714569290eb8c/720p",
+        25: "https://kodikplayer.com/seria/718142/ecae8dff82df33b729f5e8c386ef9dad/720p",
+        26: "https://kodikplayer.com/seria/718143/f3864c4c6978462fe49ac26afc5e5155/720p",
+        27: "https://kodikplayer.com/seria/719348/6eff574a4bd92835f5d0ee93fae6e332/720p",
+        28: "https://kodikplayer.com/seria/719349/7ed3802fd3f56eab5b56c54012115067/720p",
+        29: "https://kodikplayer.com/seria/722213/6b3678233114a615ac1b63d1f996acc7/720p",
+        30: "https://kodikplayer.com/seria/722214/4710afcd8f36e14deab7b25072f5345d/720p",
+        31: "https://kodikplayer.com/seria/722215/253097e4f6a1fd826c2c850550d8d563/720p",
+        32: "https://kodikplayer.com/seria/722216/fa86d75ee1ae9eef4afab189260d77b0/720p",
+        33: "https://kodikplayer.com/seria/723650/d4e080fc469e5a23393a1f9175333c89/720p",
+        34: "https://kodikplayer.com/seria/723651/bbbebcb9a7ba1f72a530535329aaaa1f/720p",
+        35: "https://kodikplayer.com/seria/723652/ec1a35086515d6072a2bf70f4a048036/720p",
+        36: "https://kodikplayer.com/seria/723653/40c66adcc3f1bca23d206afd9b71e007/720p",
+        37: "https://kodikplayer.com/seria/723654/c3c7adb465bd880f41e8f5a72567a2b8/720p",
+        38: "https://kodikplayer.com/seria/723655/d11b501e73bb13d0ce77bffbabc4edde/720p",
+        39: "https://kodikplayer.com/seria/723656/ba1c62db48a1bacb1dd97017b283ddfc/720p",
+        40: "https://kodikplayer.com/seria/723657/90c78a4d149e6ad61c7cb6dbceca2137/720p",
+        41: "https://kodikplayer.com/seria/723658/54f89b91ef506894681aec3b96f3a073/720p",
+        42: "https://kodikplayer.com/seria/724333/9f320645189e15f9e54df2d52e45eb47/720p",
+        43: "https://kodikplayer.com/seria/724334/58ff8c5a341cf490251a2502d8b903a4/720p",
+        44: "https://kodikplayer.com/seria/724335/882a9c55f9006e410882b2d6b004452e/720p",
+        45: "https://kodikplayer.com/seria/727398/3e4a8bb4e94dcb53cbc13dc1b00b4894/720p",
+        46: "https://kodikplayer.com/seria/727399/f77856b56f0e222bea71cb1b7b5a4d51/720p",
+        47: "https://kodikplayer.com/seria/727400/46cd912410c3a4c69114925047a9f3cb/720p",
+        48: "https://kodikplayer.com/seria/727401/b5a297162201ca83fa039a69685479d3/720p",
+        49: "https://kodikplayer.com/seria/727402/c34a0fc8bb8d2d2e2f0c15a0603682bd/720p",
+        50: "https://kodikplayer.com/seria/728778/b266715ba169d87a061b4d165fbd367d/720p",
+        51: "https://kodikplayer.com/seria/728779/fd24762ef3d286f75080ac0066649ed2/720p",
+        52: "https://kodikplayer.com/seria/728780/63d0919b1dc00a0f87525e0387262b93/720p",
+        53: "https://kodikplayer.com/seria/728781/ceaf2af1e6b92001ed209a6f84eeded5/720p",
+        54: "https://kodikplayer.com/seria/728782/f6a5516447b65850922fdece5cd6de7b/720p"
+    };
+
+    const SEASON_2 = {
+        1: "https://kodikplayer.com/seria/769418/fcaa24ccc8e1704306a807d226ff01e8/720p",
+        2: "https://kodikplayer.com/seria/769419/24500d5a324aabfac46bcc33c58093c5/720p",
+        3: "https://kodikplayer.com/seria/769957/c670660a342cfaaa559dee5364bd28e4/720p",
+        4: "https://kodikplayer.com/seria/769958/5c4db5aa9be1b73918282cde4c2a1422/720p",
+        5: "https://kodikplayer.com/seria/790909/3c1454ce6c23fe47f6d9d7b0bd5971ef/720p",
+        6: "https://kodikplayer.com/seria/790910/b278ba084c5a182385becf1a17de49c6/720p",
+        7: "https://kodikplayer.com/seria/794197/5267155abfce80b45679c966b1a51ddd/720p",
+        8: "https://kodikplayer.com/seria/794199/5bf9bafa8820c5471681eda05cb8ce71/720p",
+        9: "https://kodikplayer.com/seria/804554/a60b4f3d871a6fff0eafccd2ae1d19a0/720p",
+        10: "https://kodikplayer.com/seria/817974/7a96480fe0f391f823f0ab125d177a4a/720p",
+        11: "https://kodikplayer.com/seria/817975/5aaed6ae1c0c0c6a0a94910ec4c494be/720p",
+        12: "https://kodikplayer.com/seria/817976/e51beaeb1c75d689b82a2443e41e5b08/720p",
+        13: "https://kodikplayer.com/seria/817977/0038035f63b06d6d7fe15d0931ac8b3e/720p",
+        14: "https://kodikplayer.com/seria/817978/8a950ccb0483150d07bf579e45add609/720p",
+        15: "https://kodikplayer.com/seria/817979/689d0986734ca1aa0f6b4aa83d7fc7e2/720p",
+        16: "https://kodikplayer.com/seria/819167/6f2a24a4728dcaaa4128d873625fd1d9/720p",
+        17: "https://kodikplayer.com/seria/822328/92bf1243ff3055161e073dd8d3f2bf93/720p",
+        18: "https://kodikplayer.com/seria/822329/5b05fe014e7afcbfb97dd27388da5618/720p",
+        19: "https://kodikplayer.com/seria/835640/cc390fedaf73b94b582765a3dcf71256/720p",
+        20: "https://kodikplayer.com/seria/835641/59b13936408ce5cae085c1f4f0d62b94/720p",
+        21: "https://kodikplayer.com/seria/835642/1fb449d78ea27251de349b76fa88f830/720p",
+        22: "https://kodikplayer.com/seria/850423/b941395d0f2bb6da947be4b928cb9ba2/720p",
+        23: "https://kodikplayer.com/seria/850424/ce5a58552f46e2e41bccdc3bdd9d0220/720p",
+        24: "https://kodikplayer.com/seria/850435/350b9d2d733b1d9a22af8a5a2161cb73/720p",
+        25: "https://kodikplayer.com/seria/850436/c54f6714bf7cc16b02c4769c65b5012e/720p",
+        26: "https://kodikplayer.com/seria/850437/80cc95c6d03cb4920b96e323969e01cd/720p",
+        27: "https://kodikplayer.com/seria/850438/a93496c6dd66b9d94cfb0a9cab10eec0/720p",
+        28: "https://kodikplayer.com/seria/850439/f3a7997b21ca7dd82b1d7c22893f09f2/720p",
+        29: "https://kodikplayer.com/seria/850440/3f11ea47db344ac4870366f992e0b57f/720p",
+        30: "https://kodikplayer.com/seria/850441/d39e729f2f734f61cb62f4d955009964/720p",
+        31: "https://kodikplayer.com/seria/850442/8904b2f02c61839460ac5f7c3846920b/720p",
+        32: "https://kodikplayer.com/seria/862592/35a29d599f3c5ebd58709140634053df/720p",
+        33: "https://kodikplayer.com/seria/862593/99ef5a03deaceccca031fc683490a39c/720p",
+        34: "https://kodikplayer.com/seria/862594/507cdb61ff939cfcab456fb74ce02c08/720p",
+        35: "https://kodikplayer.com/seria/862595/9506e2c167f93ab6d919cb42597701d9/720p",
+        36: "https://kodikplayer.com/seria/880777/1ec3b262ff73a06e10d19d86ba0fcfd0/720p",
+        37: "https://kodikplayer.com/seria/880778/72089a7c113ea2de58b506e868c8c1df/720p",
+        38: "https://kodikplayer.com/seria/880779/ad1cc75cadfa7d5a91e63dd4be8fac7d/720p",
+        39: "https://kodikplayer.com/seria/880780/6cd476bba316a80adbc583ad13fca718/720p",
+        40: "https://kodikplayer.com/seria/880781/1bffc15f887654a463fc900602ec923e/720p",
+        41: "https://kodikplayer.com/seria/880782/797b877cc603180ba668c6041c2ce35d/720p",
+        42: "https://kodikplayer.com/seria/880783/3ad080507639f93ce6444834cbcb461a/720p",
+        43: "https://kodikplayer.com/seria/880784/0f12f9d3deefbb161b4ed3708a15be96/720p",
+        44: "https://kodikplayer.com/seria/880785/4fe810519e4e4e8a23a9a9b866d599f0/720p",
+        45: "https://kodikplayer.com/seria/880786/25fc684d3b41ffb026613517385d6afa/720p",
+        46: "https://kodikplayer.com/seria/880787/38c51c06a315823e76d276c327281a76/720p",
+        47: "https://kodikplayer.com/seria/880788/81681e35137aad87c8d421659ed5349e/720p"
+    };
+
+    let currentSzn = 1;
+
+    function switchSeason(szn) {
+        currentSzn = szn;
+        // Оновлення кнопок таборів
+        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+            btn.classList.toggle('active', idx + 1 === szn);
+        });
+        document.getElementById('panelTitle').innerText = `СЕРІЇ ${szn}-ГО СЕЗОНУ`;
+        renderEpisodes();
+    }
+
+    function renderEpisodes() {
+        const grid = document.getElementById('episodesGrid');
+        grid.innerHTML = '';
+        const data = currentSzn === 1 ? SEASON_1 : SEASON_2;
+        const count = currentSzn === 1 ? 54 : 47;
+
+        for (let i = 1; i <= count; i++) {
+            const btn = document.createElement('div');
+            btn.className = 'ep-btn';
+            btn.innerText = i;
+            btn.onclick = () => loadEpisode(i);
+            btn.id = 'ep-' + i;
+            grid.appendChild(btn);
+        }
+    }
+
+    function loadEpisode(num) {
+        document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+        const activeBtn = document.getElementById('ep-' + num);
+        if(activeBtn) activeBtn.classList.add('active');
+        
+        document.getElementById('currentTitle').innerText = `СЕЗОН ${currentSzn} | СЕРІЯ ${num}`;
+        
+        const data = currentSzn === 1 ? SEASON_1 : SEASON_2;
+        const link = data[num];
+        if(link) {
+            document.getElementById('videoPlayer').src = link;
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Ініціалізація
+    switchSeason(1);
+    loadEpisode(1);
+</script>
+
+</body>
+</html>
